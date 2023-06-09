@@ -119,7 +119,7 @@ function ProductListing() {
             ) : !products.length && !firstLoad ? (
               <TableRow>
                 <TableCell align="center" colSpan={8}>
-                  No Rooms
+                  No Products
                 </TableCell>
               </TableRow>
             ) : (
