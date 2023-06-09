@@ -92,19 +92,19 @@ function ProductListing() {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell align="left" className="font-bold">
+              <TableCell align="left" className="table_header">
                 Title
               </TableCell>
-              <TableCell align="left" className="font-bold">
+              <TableCell align="left" className="table_header">
                 Price
               </TableCell>
-              <TableCell align="left" className="font-bold">
+              <TableCell align="left" className="table_header">
                 Rating
               </TableCell>
-              <TableCell align="left" className="font-bold">
+              <TableCell align="left" className="table_header">
                 Brand
               </TableCell>
-              <TableCell align="left" className="font-bold">
+              <TableCell align="left" className="table_header">
                 Category
               </TableCell>
             </TableRow>

@@ -172,3 +172,6 @@
 .products_table{
   height: 380px;
 }
+.table_header{
+  font-weight: 700;
+}
