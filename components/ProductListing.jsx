@@ -1,56 +1,143 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import {
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import { getAllProducts } from "@app/api/getProducts/route";
 
 function ProductListing() {
   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
 
-  const fetchProducts = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_API_ENDPOINT}/products`);
-    const data = await response.json();
-    console.log(data);
-    setProducts(data.products);
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const id = setTimeout(
+      () => {
+        setIsLoading(true);
+        setFirstLoad(false);
+        getAllProducts(searchQuery)
+          .then((res) => {
+            setProducts(res.data.products);
+          })
+          .catch((err) => {
+            dispatch(
+              Actions.showMessage({
+                message: "Failed to fetch data, please refresh",
+                variant: "error",
+              })
+            );
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      },
+      firstLoad ? 0 : 1000
+    );
+    return (_) => {
+      clearTimeout(id);
+    };
+  }, [searchQuery]);
 
   return (
     <div>
-      <TableContainer component={Paper} className="overflow-scroll products_table">
+      <span>
+        <TextField
+          onChange={handleSearch}
+          id="search-input"
+          value={searchQuery}
+          label="Search by title"
+          fullWidth
+          className="mb-2"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment>
+                <IconButton
+                  id="search-icon"
+                  onClick={() => {
+                    document.getElementById("search-input").focus();
+                  }}
+                >
+                  <img
+                    alt="search-icon"
+                    src="/assets/search-icon.svg"
+                    height="80%"
+                    width="80%"
+                  />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </span>
+      <TableContainer
+        component={Paper}
+        className="overflow-scroll products_table"
+      >
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell align="left" className="font-bold">Title</TableCell>
-              <TableCell align="left" className="font-bold">Price</TableCell>
-              <TableCell align="left" className="font-bold">Rating</TableCell>
-              <TableCell align="left" className="font-bold">Brand</TableCell>
-              <TableCell align="left" className="font-bold">Category</TableCell>
+              <TableCell align="left" className="font-bold">
+                Title
+              </TableCell>
+              <TableCell align="left" className="font-bold">
+                Price
+              </TableCell>
+              <TableCell align="left" className="font-bold">
+                Rating
+              </TableCell>
+              <TableCell align="left" className="font-bold">
+                Brand
+              </TableCell>
+              <TableCell align="left" className="font-bold">
+                Category
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((row) => (
-              <TableRow
-                key={row.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.title}
+            {isLoading ? (
+              <TableRow>
+                <TableCell align="center" colSpan={5}>
+                  <CircularProgress size={35} />
                 </TableCell>
-                <TableCell align="left">{row.price}</TableCell>
-                <TableCell align="left">{row.rating}</TableCell>
-                <TableCell align="left">{row.brand}</TableCell>
-                <TableCell align="left">{row.category}</TableCell>
               </TableRow>
-            ))}
+            ) : !products.length && !firstLoad ? (
+              <TableRow>
+                <TableCell align="center" colSpan={8}>
+                  No Rooms
+                </TableCell>
+              </TableRow>
+            ) : (
+              products?.map((row) => (
+                <TableRow
+                  key={row.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {row.title}
+                  </TableCell>
+                  <TableCell align="left">{row.price}</TableCell>
+                  <TableCell align="left">{row.rating}</TableCell>
+                  <TableCell align="left">{row.brand}</TableCell>
+                  <TableCell align="left">{row.category}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
